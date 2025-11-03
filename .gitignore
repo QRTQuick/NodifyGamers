@@ -1,0 +1,52 @@
+# =========================
+# NodifyGamers Git Ignore
+# =========================
+
+# Ignore Python source files
+*.py
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Ignore PySide6 / Kivy UI files if source UI is separate
+*.ui
+
+# Ignore virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Ignore databases and local caches
+*.db
+database/
+*.sqlite3
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore temporary files
+*.tmp
+*.swp
+*.bak
+*.DS_Store
+*.directory
+
+# Ignore build folders (if you package the app)
+build/
+dist/
+*.egg-info/
+*.spec
+
+# Ignore scripts or backend code if you want only EXE
+modules/
+utils/
+backend/
+app/
+config.py
+main.py
+
+# Keep only EXE files
+!dist/NodifyGamers.exe
