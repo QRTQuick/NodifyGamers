@@ -1,0 +1,55 @@
+name: nodify_gamers_flutter
+description: "NodifyGamers - Next-Gen Gaming Platform (Flutter Edition)"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # Navigation
+  go_router: ^14.2.0
+  
+  # Local Storage
+  sqflite: ^2.3.0
+  path_provider: ^2.1.1
+  shared_preferences: ^2.2.2
+  
+  # UI Components
+  google_fonts: ^6.1.0
+  flutter_animate: ^4.3.0
+  shimmer: ^3.0.0
+  cached_network_image: ^3.3.1
+  
+  # Icons
+  font_awesome_flutter: ^10.6.0
+  
+  # Utils
+  intl: ^0.19.0
+  uuid: ^4.2.2
+  url_launcher: ^6.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/fonts/
+  
+  fonts:
+    - family: SegoeUI
+      fonts:
+        - asset: assets/fonts/SegoeUI.ttf
+        - asset: assets/fonts/SegoeUI-Bold.ttf
+          weight: 700
