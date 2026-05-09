@@ -1,52 +1,46 @@
-# =========================
-# NodifyGamers Git Ignore
-# =========================
+```
+# Flutter/Dart
+.dart_tool/
+.build/
+packages/
+*.iws
+*.sw?
+lib/**/.symlink
+android/**
+ios/**
+test/**/.symlink
+coverage/
+**/logs
 
-# Ignore Python source files
-*.py
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
+# Environment
+.env
+.env.local
+*.env.*
 
-# Ignore PySide6 / Kivy UI files if source UI is separate
-*.ui
+# Dependencies
+node_modules/
+**/pubspec.lock
 
-# Ignore virtual environments
-venv/
-env/
-.venv/
-.env/
-
-# Ignore databases and local caches
-*.db
-database/
-*.sqlite3
-
-# Ignore logs
+# Logs
 *.log
-logs/
+**/logs
 
-# Ignore temporary files
-*.tmp
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Vim
 *.swp
-*.bak
-*.DS_Store
-*.directory
+*.swo
 
-# Ignore build folders (if you package the app)
-build/
-dist/
-*.egg-info/
-*.spec
+# IntelliJ
+.idea/
 
-# Ignore scripts or backend code if you want only EXE
-modules/
-utils/
-backend/
-app/
-config.py
-main.py
-
-# Keep only EXE files
-!dist/NodifyGamers.exe
+# VS Code
+.vscode/
+```

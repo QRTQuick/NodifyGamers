@@ -1,0 +1,171 @@
+name: Flutter Android APK Build
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  FLUTTER_VERSION: '3.24.0'
+  JAVA_VERSION: '17'
+  APP_NAME: 'nodify_gamers_flutter'
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      # Step 2: Setup Java
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+      
+      # Step 3: Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+      
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: |
+          cd nodify_gamers_flutter
+          flutter pub get
+      
+      # Step 5: Run tests (optional)
+      - name: Run tests
+        run: |
+          cd nodify_gamers_flutter
+          flutter test || echo "No tests or tests failed - continuing build"
+      
+      # Step 6: Analyze code
+      - name: Analyze code
+        run: |
+          cd nodify_gamers_flutter
+          flutter analyze || echo "Analysis warnings found - continuing build"
+      
+      # Step 7: Decode Keystore (if secrets are available)
+      - name: Decode Keystore
+        if: env.KEYSTORE_BASE64 != null
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo $KEYSTORE_BASE64 | base64 --decode > nodify_gamers_flutter/android/app/key.jks
+      
+      # Step 8: Create key.properties
+      - name: Create key.properties
+        if: env.KEYSTORE_BASE64 != null
+        run: |
+          cat << EOF > nodify_gamers_flutter/android/key.properties
+          storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=key.jks
+          EOF
+      
+      # Step 9: Build APK
+      - name: Build APK
+        run: |
+          cd nodify_gamers_flutter
+          if [ -f "android/key.properties" ]; then
+            echo "Building signed release APK..."
+            flutter build apk --release
+          else
+            echo "Building unsigned debug APK (no keystore found)..."
+            flutter build apk --debug
+          fi
+      
+      # Step 10: Upload APK artifact
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-apk
+          path: nodify_gamers_flutter/build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+      
+      # Step 11: Create Release (only on tags)
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: nodify_gamers_flutter/build/app/outputs/flutter-apk/*.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  build-appbundle:
+    name: Build Android App Bundle (AAB)
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        run: |
+          cd nodify_gamers_flutter
+          flutter pub get
+      
+      - name: Decode Keystore
+        if: env.KEYSTORE_BASE64 != null
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo $KEYSTORE_BASE64 | base64 --decode > nodify_gamers_flutter/android/app/key.jks
+      
+      - name: Create key.properties
+        if: env.KEYSTORE_BASE64 != null
+        run: |
+          cat << EOF > nodify_gamers_flutter/android/key.properties
+          storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=key.jks
+          EOF
+      
+      - name: Build App Bundle
+        run: |
+          cd nodify_gamers_flutter
+          flutter build appbundle --release
+      
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-aab
+          path: nodify_gamers_flutter/build/app/outputs/bundle/release/*.aab
+          retention-days: 30
+      
+      - name: Upload AAB to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: nodify_gamers_flutter/build/app/outputs/bundle/release/*.aab
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
